@@ -2,13 +2,14 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>ChromeLLM – Lokale KI auf dem Chromebook</title>
+  <title>LocalLLMChromebook – Lokale KI auf dem Chromebook</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Ollama + Open WebUI + Cloudflare Tunnel auf dem Chromebook – lokale KI mit Weboberfläche, sicher aus dem Internet erreichbar." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  //fonts.googleapis.com" />
+  //fonts.gstatic.com" crossorigin n />
+  //fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
+    /* (CSS identisch wie vorher, unverändert) */
     :root {
       --bg: #020617;
       --bg-alt: #02091f;
@@ -21,471 +22,273 @@
       --border: rgba(148, 163, 184, 0.2);
       --danger: #f97373;
     }
-
-    * {
-      box-sizing: border-box;
-      scroll-behavior: smooth;
-    }
-
+    * { box-sizing: border-box; scroll-behavior: smooth; }
     body {
       margin: 0;
       font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont;
       background: radial-gradient(circle at top, #0f172a 0, #020617 50%, #000 100%);
       color: var(--text);
     }
-
-    a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
     header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
+      position: sticky; top: 0; z-index: 50;
       backdrop-filter: blur(16px);
       background: linear-gradient(to bottom, rgba(15,23,42,0.95), rgba(15,23,42,0.6), transparent);
       border-bottom: 1px solid var(--border);
     }
-
     .nav {
-      max-width: 1080px;
-      margin: 0 auto;
+      max-width: 1080px; margin: 0 auto;
       padding: 0.75rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       gap: 1rem;
     }
-
-    .nav-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
+    .nav-left { display:flex; align-items:center; gap:0.75rem; }
     .logo-circle {
-      width: 36px;
-      height: 36px;
-      border-radius: 999px;
+      width: 36px; height: 36px; border-radius: 999px;
       background: radial-gradient(circle at 30% 20%, #38bdf8, #a855f7 60%, #0f172a 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.5);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 0 25px rgba(56,189,248,0.5);
       font-size: 20px;
     }
-
-    .nav-title {
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      font-size: 0.95rem;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 1.25rem;
-      font-size: 0.9rem;
-    }
-
+    .nav-title { font-weight:600; letter-spacing:0.04em; font-size:0.95rem; }
+    .nav-links { display:flex; gap:1.25rem; font-size:0.9rem; }
     .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      position: relative;
+      color: var(--muted); text-decoration:none; position:relative;
     }
-
     .nav-links a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -4px;
-      width: 0;
-      height: 2px;
+      content:""; position:absolute; left:0; bottom:-4px;
+      width:0; height:2px;
       background: linear-gradient(90deg, var(--accent), var(--accent2));
       transition: width 0.2s ease-out;
     }
-
-    .nav-links a:hover::after {
-      width: 100%;
-    }
-
-    .nav-cta {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
+    .nav-links a:hover::after { width:100%; }
+    .nav-cta { display:flex; align-items:center; gap:0.5rem; }
     .btn {
-      border-radius: 999px;
-      padding: 0.4rem 0.9rem;
-      font-size: 0.8rem;
-      border: 1px solid var(--border);
-      background: rgba(15,23,42,0.8);
-      color: var(--text);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      cursor: pointer;
-      text-decoration: none;
+      border-radius:999px; padding:0.4rem 0.9rem; font-size:0.8rem;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,0.8);
+      color:var(--text);
+      display:inline-flex; align-items:center; gap:0.3rem;
+      cursor:pointer; text-decoration:none;
     }
-
     .btn-primary {
-      border: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #0b1120;
-      font-weight: 600;
-      box-shadow: 0 15px 40px rgba(56,189,248,0.35);
+      border:none;
+      background:linear-gradient(135deg, var(--accent), var(--accent2));
+      color:#0b1120; font-weight:600;
+      box-shadow:0 15px 40px rgba(56,189,248,0.35);
     }
-
     .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 30px rgba(15,23,42,0.8);
+      transform:translateY(-1px);
+      box-shadow:0 10px 30px rgba(15,23,42,0.8);
     }
-
-    main {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 1.5rem;
-    }
-
+    main { max-width:1080px; margin:0 auto; padding:1.5rem; }
     .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.1fr);
-      gap: 2.5rem;
-      align-items: center;
-      padding: 3rem 0 2rem;
+      display:grid;
+      grid-template-columns:minmax(0,1.5fr) minmax(0,1.1fr);
+      gap:2.5rem; align-items:center;
+      padding:3rem 0 2rem;
     }
-
-    @media (max-width: 880px) {
-      .hero {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .nav-links {
-        display: none;
-      }
+    @media (max-width:880px){
+      .hero { grid-template-columns:minmax(0,1fr); }
+      .nav-links { display:none; }
     }
-
     .hero-kicker {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--accent);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      font-size:0.8rem; text-transform:uppercase;
+      letter-spacing:0.16em; color:var(--accent);
+      display:inline-flex; align-items:center; gap:0.5rem;
+      margin-bottom:0.5rem;
     }
-
     .hero-kicker span.dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 12px rgba(56,189,248,0.8);
+      width:6px; height:6px; border-radius:999px;
+      background:var(--accent);
+      box-shadow:0 0 12px rgba(56,189,248,0.8);
     }
-
     .hero-title {
-      font-size: clamp(2.1rem, 3vw, 2.8rem);
-      line-height: 1.1;
-      font-weight: 700;
-      margin-bottom: 0.75rem;
+      font-size:clamp(2.1rem,3vw,2.8rem);
+      line-height:1.1; font-weight:700;
+      margin-bottom:0.75rem;
     }
-
     .hero-title span.gradient {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      background:linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip:text; background-clip:text;
+      color:transparent;
     }
-
     .hero-subtitle {
-      font-size: 0.98rem;
-      color: var(--muted);
-      max-width: 32rem;
-      line-height: 1.5;
-      margin-bottom: 1rem;
+      font-size:0.98rem; color:var(--muted);
+      max-width:32rem; line-height:1.5;
+      margin-bottom:1rem;
     }
-
     .hero-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-bottom: 1.2rem;
+      display:flex; flex-wrap:wrap;
+      gap:0.4rem; margin-bottom:1.2rem;
     }
-
     .hero-badge {
-      font-size: 0.8rem;
-      padding: 0.15rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.4);
-      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.2), rgba(15,23,42,0.8));
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
+      font-size:0.8rem; padding:0.15rem 0.55rem;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.4);
+      background:radial-gradient(circle at 0 0, rgba(56,189,248,0.2), rgba(15,23,42,0.8));
+      color:var(--muted);
+      display:inline-flex; align-items:center; gap:0.25rem;
     }
-
     .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-bottom: 0.9rem;
+      display:flex; flex-wrap:wrap;
+      gap:0.75rem; margin-bottom:0.9rem;
     }
-
     .hero-footnote {
-      font-size: 0.8rem;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
+      font-size:0.8rem; color:var(--muted);
+      display:flex; align-items:center; gap:0.4rem;
     }
-
     .hero-footnote .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 12px rgba(34,197,94,0.8);
+      width:8px; height:8px; border-radius:999px;
+      background:#22c55e;
+      box-shadow:0 0 12px rgba(34,197,94,0.8);
     }
-
     .hero-card {
-      position: relative;
-      border-radius: 1.25rem;
-      background: radial-gradient(circle at top, #0f172a, #020617 60%);
-      border: 1px solid var(--border);
-      padding: 1.25rem;
-      box-shadow: 0 25px 70px rgba(15,23,42,0.95);
-      overflow: hidden;
+      position:relative;
+      border-radius:1.25rem;
+      background:radial-gradient(circle at top, #0f172a, #020617 60%);
+      border:1px solid var(--border);
+      padding:1.25rem;
+      box-shadow:0 25px 70px rgba(15,23,42,0.95);
+      overflow:hidden;
     }
-
     .hero-card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.08), transparent 60%);
-      opacity: 0.8;
-      pointer-events: none;
+      content:""; position:absolute; inset:-40%;
+      background:radial-gradient(circle at 0 0, rgba(56,189,248,0.08), transparent 60%);
+      opacity:0.8; pointer-events:none;
     }
-
     .hero-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.8rem;
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:0.8rem;
     }
-
     .hero-card-title {
-      font-size: 0.85rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
+      font-size:0.85rem; letter-spacing:0.12em;
+      text-transform:uppercase; color:var(--muted);
     }
-
     .hero-card-pill {
-      font-size: 0.72rem;
-      padding: 0.15rem 0.55rem;
-      border-radius: 999px;
-      background: rgba(34,197,94,0.12);
-      color: #bbf7d0;
-      border: 1px solid rgba(34,197,94,0.3);
+      font-size:0.72rem; padding:0.15rem 0.55rem;
+      border-radius:999px;
+      background:rgba(34,197,94,0.12);
+      color:#bbf7d0;
+      border:1px solid rgba(34,197,94,0.3);
     }
-
-    .hero-card-main {
-      margin-bottom: 0.8rem;
-    }
-
+    .hero-card-main { margin-bottom:0.8rem; }
     .hero-card-line {
-      font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin: 0.15rem 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
+      font-family:"Roboto Mono",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:0.8rem; color:var(--muted);
+      margin:0.15rem 0;
+      display:flex; align-items:center; justify-content:space-between; gap:0.5rem;
     }
-
-    .hero-card-line span.label {
-      color: var(--text);
-    }
-
+    .hero-card-line span.label { color:var(--text); }
     .hero-card-chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      margin-top: 0.8rem;
+      display:flex; flex-wrap:wrap;
+      gap:0.35rem; margin-top:0.8rem;
     }
-
     .chip {
-      font-size: 0.72rem;
-      padding: 0.1rem 0.5rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.4);
-      color: var(--muted);
-      background: rgba(15,23,42,0.9);
+      font-size:0.72rem; padding:0.1rem 0.5rem;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.4);
+      color:var(--muted);
+      background:rgba(15,23,42,0.9);
     }
-
     .chip.badge {
-      border-color: rgba(56,189,248,0.7);
-      color: var(--accent);
+      border-color:rgba(56,189,248,0.7);
+      color:var(--accent);
     }
-
-    .steps-section {
-      margin-top: 3rem;
-    }
-
-    .section-title {
-      font-size: 1.3rem;
-      margin-bottom: 0.4rem;
-    }
-
+    .steps-section { margin-top:3rem; }
+    .section-title { font-size:1.3rem; margin-bottom:0.4rem; }
     .section-subtitle {
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin-bottom: 1.4rem;
+      font-size:0.9rem; color:var(--muted);
+      margin-bottom:1.4rem;
     }
-
     .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1.4rem;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:1.4rem;
     }
-
-    @media (max-width: 880px) {
-      .steps-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
+    @media (max-width:880px){
+      .steps-grid { grid-template-columns:minmax(0,1fr); }
     }
-
     .step-card {
-      border-radius: 1rem;
-      border: 1px solid var(--border);
-      padding: 1rem;
-      background: linear-gradient(145deg, rgba(15,23,42,0.95), rgba(15,23,42,0.7));
-      position: relative;
-      overflow: hidden;
+      border-radius:1rem;
+      border:1px solid var(--border);
+      padding:1rem;
+      background:linear-gradient(145deg, rgba(15,23,42,0.95), rgba(15,23,42,0.7));
+      position:relative; overflow:hidden;
     }
-
     .step-badge {
-      font-size: 0.75rem;
-      padding: 0.12rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      margin-bottom: 0.5rem;
+      font-size:0.75rem; padding:0.12rem 0.55rem;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.5);
+      color:var(--muted);
+      display:inline-flex; align-items:center; gap:0.3rem;
+      margin-bottom:0.5rem;
     }
-
-    .step-title {
-      font-size: 1rem;
-      margin-bottom: 0.4rem;
-    }
-
+    .step-title { font-size:1rem; margin-bottom:0.4rem; }
     .step-text {
-      font-size: 0.88rem;
-      color: var(--muted);
-      margin-bottom: 0.5rem;
+      font-size:0.88rem; color:var(--muted);
+      margin-bottom:0.5rem;
     }
-
     .step-code {
-      font-family: "Roboto Mono", ui-monospace;
-      font-size: 0.78rem;
-      background: #020617;
-      border-radius: 0.5rem;
-      padding: 0.6rem 0.7rem;
-      border: 1px solid rgba(15,23,42,0.75);
-      color: #e5e7eb;
-      overflow-x: auto;
+      font-family:"Roboto Mono",ui-monospace;
+      font-size:0.78rem;
+      background:#020617;
+      border-radius:0.5rem;
+      padding:0.6rem 0.7rem;
+      border:1px solid rgba(15,23,42,0.75);
+      color:#e5e7eb;
+      overflow-x:auto;
     }
-
     .step-footer {
-      margin-top: 0.5rem;
-      font-size: 0.78rem;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
+      margin-top:0.5rem;
+      font-size:0.78rem; color:var(--muted);
+      display:flex; align-items:center; justify-content:space-between; gap:0.5rem;
     }
-
     .pill {
-      border-radius: 999px;
-      padding: 0.1rem 0.5rem;
-      font-size: 0.76rem;
-      border: 1px solid rgba(148,163,184,0.4);
-      color: var(--muted);
+      border-radius:999px;
+      padding:0.1rem 0.5rem;
+      font-size:0.76rem;
+      border:1px solid rgba(148,163,184,0.4);
+      color:var(--muted);
     }
-
     .pill.ok {
-      border-color: rgba(34,197,94,0.6);
-      color: #bbf7d0;
+      border-color:rgba(34,197,94,0.6);
+      color:#bbf7d0;
     }
-
     .faq {
-      margin-top: 3rem;
-      border-radius: 1.25rem;
-      border: 1px solid var(--border);
-      padding: 1.25rem;
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.1), rgba(15,23,42,0.95));
+      margin-top:3rem;
+      border-radius:1.25rem;
+      border:1px solid var(--border);
+      padding:1.25rem;
+      background:radial-gradient(circle at top left, rgba(56,189,248,0.1), rgba(15,23,42,0.95));
     }
-
     .faq-item {
-      border-top: 1px solid rgba(148,163,184,0.35);
-      padding: 0.75rem 0;
+      border-top:1px solid rgba(148,163,184,0.35);
+      padding:0.75rem 0;
     }
-
-    .faq-item:first-of-type {
-      border-top: none;
-      padding-top: 0;
-    }
-
+    .faq-item:first-of-type { border-top:none; padding-top:0; }
     .faq-q {
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
+      font-size:0.95rem; font-weight:500;
+      cursor:pointer;
+      display:flex; justify-content:space-between; align-items:center; gap:0.5rem;
     }
-
     .faq-a {
-      font-size: 0.86rem;
-      color: var(--muted);
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.22s ease-out, opacity 0.22s ease-out;
-      opacity: 0;
-      margin-top: 0.3rem;
+      font-size:0.86rem; color:var(--muted);
+      max-height:0; overflow:hidden;
+      transition:max-height 0.22s ease-out, opacity 0.22s ease-out;
+      opacity:0; margin-top:0.3rem;
     }
-
-    .faq-a.open {
-      max-height: 500px;
-      opacity: 1;
-    }
-
+    .faq-a.open { max-height:500px; opacity:1; }
     .footer {
-      margin: 3rem 0 1.5rem;
-      font-size: 0.78rem;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
+      margin:3rem 0 1.5rem;
+      font-size:0.78rem; color:var(--muted);
+      display:flex; justify-content:space-between;
+      gap:1rem; flex-wrap:wrap; align-items:center;
     }
-
     .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      align-items: center;
+      display:flex; flex-wrap:wrap;
+      gap:0.5rem; align-items:center;
     }
   </style>
 </head>
@@ -494,16 +297,16 @@
   <div class="nav">
     <div class="nav-left">
       <div class="logo-circle">🧠</div>
-      <div class="nav-title">ChromeLLM · Chromebook AI Stack</div>
+      <div class="nav-title">LocalLLMChromebook · Chromebook AI Stack</div>
     </div>
     <nav class="nav-links">
       <a href="#steps">Setup</a>
       <a href="#faq">FAQ</a>
-      <a href="https://github.com/DEINUSER/DEINREPO" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="https://github.com/jbkunama1/LocalLLMChromebook" target="_blank" rel="noreferrer">GitHub</a>
     </nav>
     <div class="nav-cta">
-      <a class="btn" href="https://buymeacoffee.com/DEINNAME" target="_blank" rel="noreferrer">☕ Support</a>
-      <a class="btn btn-primary" href="https://github.com/DEINUSER/DEINREPO" target="_blank" rel="noreferrer">
+      <a class="btn" href="https://www.buymeacoffee.com/highfish" target="_blank" rel="noreferrer">☕ Support</a>
+      <a class="btn btn-primary" href="https://github.com/jbkunama1/LocalLLMChromebook" target="_blank" rel="noreferrer">
         <span>Star on GitHub</span> ★
       </a>
     </div>
@@ -517,12 +320,12 @@
         Chromebook · Lokale KI
       </div>
       <h1 class="hero-title">
-        Baue dein <span class="gradient">lokales KI‑Lab</span><br />mit Chromebook, Ollama &amp; Open WebUI.
+        Lokale <span class="gradient">LLMs auf dem Chromebook</span><br />mit Ollama &amp; Open WebUI.
       </h1>
       <p class="hero-subtitle">
-        Diese Anleitung zeigt dir, wie du auf einem Chromebook ein vollständiges KI‑Setup aufsetzt:
-        <strong>Ollama</strong> als Modell-Backend, <strong>Open WebUI</strong> als Chat‑Interface
-        und <strong>Cloudflare Tunnel</strong> für sicheren Zugriff von überall.
+        Dieses Projekt zeigt, wie du auf einem Chromebook ein komplettes KI‑Setup aufsetzt:
+        <strong>Ollama</strong> als Backend, <strong>Open WebUI</strong> als Chat‑Interface
+        und <strong>Cloudflare Tunnel</strong> für sicheren Zugriff von außen.
       </p>
       <div class="hero-badges">
         <div class="hero-badge">🦙 Ollama Backend</div>
@@ -531,12 +334,12 @@
         <div class="hero-badge">💻 Chromebook / Linux</div>
       </div>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#steps">Setup in 3 Schritten starten</a>
+        <a class="btn btn-primary" href="#steps">Setup in 3 Blöcken starten</a>
         <button class="btn" id="copyCommandBtn" type="button">📋 Install-Befehl kopieren</button>
       </div>
       <div class="hero-footnote">
         <div class="status-dot"></div>
-        <span id="statusText">Bereit, dein Chromebook in eine KI‑Workstation zu verwandeln.</span>
+        <span id="statusText">Starte im Terminal – der Rest folgt der Anleitung.</span>
       </div>
     </div>
     <aside class="hero-card" aria-label="Setup-Status">
@@ -565,8 +368,8 @@
         </div>
       </div>
       <div style="font-size:0.78rem; color:var(--muted); margin-top:0.4rem;">
-        Hinweis: Diese Seite läuft statisch auf GitHub Pages. Die Status‑Anzeige ist nur
-        eine lokale Simulation – dein echter Stack läuft auf deinem Chromebook.
+        Hinweis: Diese Seite ist statisch (GitHub Pages). Die Status‑Anzeige ist eine Simulation –
+        dein echter Stack läuft auf deinem Chromebook.
       </div>
     </aside>
   </section>
@@ -574,17 +377,18 @@
   <section id="steps" class="steps-section">
     <h2 class="section-title">Setup in drei Blöcken</h2>
     <p class="section-subtitle">
-      Folge diesen Schritten in deinem Linux‑Terminal auf dem Chromebook. Die komplette Schritt‑für‑Schritt‑Anleitung findest du auch im <a href="https://github.com/DEINUSER/DEINREPO" target="_blank" rel="noreferrer">README auf GitHub</a>.
+      Die vollständige Anleitung findest du im <a href="https://github.com/jbkunama1/LocalLLMChromebook" target="_blank" rel="noreferrer">README im GitHub‑Repo</a>.
+      Hier die Kurzfassung der wichtigsten Befehle.
     </p>
     <div class="steps-grid">
       <article class="step-card">
         <div class="step-badge">1 · Backend (Ollama)</div>
         <h3 class="step-title">Ollama installieren &amp; Modell laden</h3>
         <p class="step-text">
-          Installiere Ollama, lade ein kleines, aber starkes Modell wie <code>qwen2.5:3b</code>
-          und teste die lokale Generierung direkt im Terminal.
+          Installiere Ollama, lade ein leichtes, aber sinnvolles Modell wie de>qwen2.5:3b</code>
+          und teste lokale Antworten direkt im Terminal.
         </p>
-        <pre class="step-code"><code>curl -fsSL https://ollama.com/install.sh | sh
+        <pre class="step-code">de>curl -fsSL https://ollama.com/install.sh | sh
 ollama pull qwen2.5:3b
 ollama run qwen2.5:3b "Hallo Chromebook!"</code></pre>
         <div class="step-footer">
@@ -597,10 +401,10 @@ ollama run qwen2.5:3b "Hallo Chromebook!"</code></pre>
         <div class="step-badge">2 · Chat UI (Open WebUI)</div>
         <h3 class="step-title">Open WebUI als lokale Chat‑Oberfläche</h3>
         <p class="step-text">
-          Installiere Open WebUI via <code>pip</code>, starte die Weboberfläche und verknüpfe sie über
-          <code>http://localhost:11434</code> mit deinem Ollama‑Backend.
+          Installiere Open WebUI via de>pip</code>, starte die Weboberfläche und verknüpfe sie
+          mit deinem Ollama‑Backend unter de>http://localhost:11434</code>.
         </p>
-        <pre class="step-code"><code>python3 -m venv venv
+        <pre class="step-code">de>python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install open-webui
@@ -613,18 +417,18 @@ open-webui serve</code></pre>
 
       <article class="step-card">
         <div class="step-badge">3 · Internetzugriff (Cloudflare)</div>
-        <h3 class="step-title">Sicherer Zugriff über Cloudflare Tunnel</h3>
+        <h3 class="step-title">Sicherer Zugriff mit Cloudflare Tunnel</h3>
         <p class="step-text">
-          Richte einen Cloudflare Tunnel ein, der deine Ollama‑API und optional Open WebUI
-          über eine eigene Subdomain erreichbar macht – ohne Port‑Forwarding.
+          Richte über das Cloudflare‑Dashboard einen Tunnel ein, der die Ollama‑API und optional
+          Open WebUI über eigene Subdomains erreichbar macht – ohne Port‑Forwarding.
         </p>
-        <pre class="step-code"><code># Befehl aus dem Cloudflare-Dashboard
+        <pre class="step-code">de># Befehl aus dem Cloudflare-Dashboard
 sudo cloudflared service install &lt;DEIN-TOKEN&gt;
 # Hostnames:
 # ollama.deinedomain.de → http://localhost:11434
 # chat.deinedomain.de   → http://localhost:8080</code></pre>
         <div class="step-footer">
-          <div class="pill">Empfohlen: Cloudflare Access</div>
+          <div class="pill">DNS &amp; Tunnel bei Cloudflare</div>
           <a class="btn" href="https://dash.cloudflare.com" target="_blank" rel="noreferrer">☁️ Zu Cloudflare</a>
         </div>
       </article>
@@ -634,7 +438,7 @@ sudo cloudflared service install &lt;DEIN-TOKEN&gt;
   <section id="faq" class="faq" aria-label="FAQ">
     <h2 class="section-title">FAQ · Häufige Fragen</h2>
     <div class="section-subtitle">
-      Klicke auf eine Frage, um die Antwort zu sehen. Ideal auch als kleine FAQ‑Sektion für den Unterricht oder Projektdokus.
+      Kurz beantwortet, was beim ersten Setup typischerweise aufkommt.
     </div>
 
     <div class="faq-item">
@@ -643,42 +447,42 @@ sudo cloudflared service install &lt;DEIN-TOKEN&gt;
         <span>+</span>
       </div>
       <div class="faq-a">
-        Nein, auf dem Chromebook ist die Installation per <code>pip</code> oft leichter und
-        ressourcenschonend. Docker funktioniert auch, benötigt aber mehr RAM und Speicherplatz.
+        Nein. Für Chromebooks ist die Installation per de>pip</code> oft leichter und spart Ressourcen.
+        Docker geht auch, benötigt aber mehr RAM und Speicherplatz. [web:23][web:19]
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">
-        <span>Welches Modell ist für 4&nbsp;GB RAM sinnvoll?</span>
+        <span>Welches Modell eignet sich für 4&nbsp;GB RAM?</span>
         <span>+</span>
       </div>
       <div class="faq-a">
-        Empfohlen sind Modelle wie <code>qwen2.5:3b</code> oder <code>gemma3:2b</code>. Sie liefern
-        eine gute Balance aus Qualität und Geschwindigkeit (ca. 3–5 Tokens/Sekunde je nach CPU).
+        Modelle wie de>qwen2.5:3b</code> oder de>gemma3:2b</code> sind ein guter Start: vernünftige
+        Qualität bei moderatem RAM‑Verbrauch und 3–5 Tokens/Sekunde je nach CPU. [web:10][web:7]
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">
-        <span>Ist der Zugriff über Cloudflare Tunnel sicher genug?</span>
+        <span>Ist der Zugriff über Cloudflare Tunnel sicher?</span>
         <span>+</span>
       </div>
       <div class="faq-a">
-        Ja, besonders wenn du zusätzlich Cloudflare Access aktivierst (z.B. Login per E‑Mail oder
-        Single Sign‑On). So kann nicht jeder frei auf deine KI‑Instanz zugreifen.
+        Ja, besonders wenn du zusätzlich Cloudflare Access aktivierst (z.B. E‑Mail‑Login oder SSO).
+        So kann nicht jeder beliebige Nutzer auf deine Instanz zugreifen. [web:9]
       </div>
     </div>
   </section>
 
   <footer class="footer">
     <div>
-      © <span id="year"></span> ChromeLLM – gebaut für Chromebook‑Nerds, Lehrkräfte &amp; Maker.
+      © <span id="year"></span> LocalLLMChromebook – Self‑Hosted KI auf dem Chromebook.
     </div>
     <div class="badge-row">
-      <span class="pill">Made with ❤️ in Karlsruhe</span>
-      <a class="pill" href="https://github.com/DEINUSER/DEINREPO" target="_blank" rel="noreferrer">GitHub-Repo</a>
-      <a class="pill" href="https://buymeacoffee.com/DEINNAME" target="_blank" rel="noreferrer">☕ Buy me a coffee</a>
+      <span class="pill">Made with ❤️</span>
+      <a class="pill" href="https://github.com/jbkunama1/LocalLLMChromebook" target="_blank" rel="noreferrer">GitHub‑Repo</a>
+      <a class="pill" href="https://www.buymeacoffee.com/highfish" target="_blank" rel="noreferrer">☕ Buy me a coffee</a>
     </div>
   </footer>
 </main>
@@ -708,7 +512,7 @@ sudo cloudflared service install &lt;DEIN-TOKEN&gt;
       const old = status.textContent;
       status.textContent = "Befehl kopiert – ab ins Terminal!";
       setTimeout(() => (status.textContent = old), 2400);
-    });
+   );
   }
 
   document.getElementById("copyCommandBtn").addEventListener("click", function () {
@@ -727,12 +531,8 @@ sudo cloudflared service install &lt;DEIN-TOKEN&gt;
   const statusTunnel = document.getElementById("statusTunnel");
   const pill = document.getElementById("stackPill");
 
-  setTimeout(() => {
-    statusOllama.textContent = "bereit (lokal)";
-  }, 700);
-  setTimeout(() => {
-    statusWebUI.textContent = "läuft auf :8080";
-  }, 1300);
+  setTimeout(() => { statusOllama.textContent = "bereit (lokal)"; }, 700);
+  setTimeout(() => { statusWebUI.textContent = "läuft auf :8080"; }, 1300);
   setTimeout(() => {
     statusTunnel.textContent = "konfigurierbar via Cloudflare";
     pill.textContent = "Ready · Anleitung folgen";
