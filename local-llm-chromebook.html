@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalLLMChromebook</title>
+  <meta name="description" content="Ollama, Open WebUI und Cloudflare Tunnel auf dem Chromebook einrichten." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{--bg:#f7f6f2;--surface:#f9f8f5;--surface2:#ffffff;--text:#171717;--muted:#666;--primary:#01696f;--primary2:#0ea5e9;--border:rgba(0,0,0,.1);--shadow:0 12px 32px rgba(0,0,0,.08);--radius:22px}
+    [data-theme="dark"]{--bg:#0b1220;--surface:#121a2b;--surface2:#182338;--text:#e8eefb;--muted:#9fb0d1;--primary:#53c5d0;--primary2:#7c9cff;--border:rgba(255,255,255,.12);--shadow:0 18px 50px rgba(0,0,0,.35);--radius:22px}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at top,#15213b 0,var(--bg) 45%,#050812 100%);color:var(--text)}
+    a{color:inherit;text-decoration:none} img{max-width:100%;display:block} code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    .wrap{width:min(1180px,calc(100% - 32px));margin:0 auto}.top{position:sticky;top:0;z-index:50;background:rgba(11,18,32,.72);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:16px}.brand{display:flex;align-items:center;gap:12px;font-weight:800}.brand svg{width:36px;height:36px;color:var(--primary2)}
+    .links{display:flex;gap:18px;flex-wrap:wrap}.links a{color:var(--muted)}.cta{display:flex;gap:10px;flex-wrap:wrap}.btn{padding:12px 16px;border-radius:999px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow);font-weight:700;cursor:pointer}.btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:white;border:none}
+    .hero{display:grid;grid-template-columns:1.25fr .95fr;gap:28px;padding:44px 0 24px}.panel{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero-copy{padding:28px}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:rgba(83,197,208,.12);color:var(--primary);font-size:14px;font-weight:700}.dot{width:8px;height:8px;border-radius:50%;background:var(--primary2)}
+    h1{font-size:clamp(2.2rem,5vw,4.5rem);line-height:1.02;margin:18px 0 12px} .gradient{background:linear-gradient(135deg,var(--primary),var(--primary2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{font-size:1.08rem;color:var(--muted);max-width:62ch}.chips{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}.chip{padding:8px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.92rem}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}.hero-card{padding:22px}.status{display:grid;gap:14px}.row{display:flex;justify-content:space-between;gap:16px;padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:16px}.ok{color:#46d37c}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:28px 0}.card{padding:22px}.card h3{margin:8px 0 10px}.muted{color:var(--muted)}
+    .code{background:#09101d;color:#d9e6ff;padding:16px;border-radius:16px;overflow:auto;border:1px solid rgba(255,255,255,.08);font-size:.9rem}.section{padding:18px 0}.section h2{font-size:clamp(1.6rem,3vw,2.5rem);margin-bottom:8px}.accordion{display:grid;gap:12px}.item{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:var(--surface)}.q{width:100%;text-align:left;background:none;border:0;color:var(--text);padding:18px 20px;font-size:1rem;font-weight:700;display:flex;justify-content:space-between;align-items:center}.a{display:none;padding:0 20px 18px;color:var(--muted)}
+    .footer{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:28px 0 40px;color:var(--muted)} .bmac img{height:40px;width:auto}
+    @media (max-width:900px){.hero,.grid{grid-template-columns:1fr}.links{display:none}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap nav">
+      <div class="brand">
+        <svg viewBox="0 0 64 64" fill="none" aria-label="LocalLLMChromebook Logo"><rect x="10" y="14" width="44" height="28" rx="6" stroke="currentColor" stroke-width="3"/><path d="M18 48h28" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M24 24c2-4 8-6 12-2 4-4 10-2 12 2-1 8-8 12-12 14-4-2-11-6-12-14Z" stroke="currentColor" stroke-width="3"/></svg>
+        <span>LocalLLMChromebook</span>
+      </div>
+      <nav class="links">
+        <a href="#setup">Setup</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/jbkunama1/LocalLLMChromebook" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+      <div class="cta">
+        <button class="btn" data-theme-toggle aria-label="Theme wechseln">🌓</button>
+        <a class="btn" href="https://www.buymeacoffee.com/highfish" target="_blank" rel="noopener noreferrer">☕ Support</a>
+        <a class="btn primary" href="https://github.com/jbkunama1/LocalLLMChromebook" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
+      </div>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="hero">
+      <div class="panel hero-copy">
+        <div class="eyebrow"><span class="dot"></span> Chromebook · Ollama · Open WebUI · Cloudflare</div>
+        <h1>Lokale <span class="gradient">LLMs</span> auf dem Chromebook.</h1>
+        <p class="lead">Dieses Projekt kombiniert Ollama als Modell-Backend, Open WebUI als Chat-Oberfläche und Cloudflare Tunnel für sicheren externen Zugriff. Die Open-WebUI-Dokumentation beschreibt einen Quick Start, und die Cloudflare-Dokumentation führt durch Tunnel-Erstellung und Public Hostnames. [web:19][web:9]</p>
+        <div class="chips"><span class="chip">🦙 Ollama</span><span class="chip">💬 Open WebUI</span><span class="chip">☁️ Cloudflare Tunnel</span><span class="chip">💻 Crostini Linux</span></div>
+        <div class="hero-actions">
+          <a class="btn primary" href="#setup">Jetzt einrichten</a>
+          <button class="btn" id="copyInstall">Einzeiler kopieren</button>
+          <a class="btn" href="https://github.com/jbkunama1/LocalLLMChromebook" target="_blank" rel="noopener noreferrer">README auf GitHub</a>
+        </div>
+      </div>
+      <aside class="panel hero-card">
+        <div class="status">
+          <div class="row"><span>Ollama</span><strong class="ok">bereit für lokale Modelle</strong></div>
+          <div class="row"><span>Open WebUI</span><strong class="ok">pip-Installation möglich</strong></div>
+          <div class="row"><span>Cloudflare Tunnel</span><strong class="ok">Public Hostnames im Dashboard</strong></div>
+          <div class="row"><span>Empfohlenes Modell</span><strong>qwen2.5:3b</strong></div>
+        </div>
+      </aside>
+    </section>
+    <section id="setup" class="section">
+      <h2>Setup in drei Blöcken</h2>
+      <p class="muted">Ollama liefert eine einfache lokale API, Open WebUI stellt die Chat-Oberfläche bereit, und Cloudflare Tunnel bindet lokale Dienste ohne Port-Forwarding an eine Domain an. [web:5][web:19][web:9]</p>
+      <div class="grid">
+        <article class="panel card"><div class="chip">1 · Backend</div><h3>Ollama installieren</h3><p class="muted">Kleines Modell laden und direkt testen.</p><pre class="code">curl -fsSL https://ollama.com/install.sh | sh
+ollama pull qwen2.5:3b
+ollama run qwen2.5:3b "Hallo Chromebook!"</pre></article>
+        <article class="panel card"><div class="chip">2 · Chat UI</div><h3>Open WebUI starten</h3><p class="muted">Python-Umgebung anlegen und Open WebUI lokal starten.</p><pre class="code">python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install open-webui
+open-webui serve</pre></article>
+        <article class="panel card"><div class="chip">3 · Externer Zugriff</div><h3>Cloudflare Tunnel</h3><p class="muted">Hostnames für API und Chat im Dashboard definieren.</p><pre class="code">ollama.example.de → http://localhost:11434
+chat.example.de   → http://localhost:8080
+sudo cloudflared service install &lt;TOKEN&gt;</pre></article>
+      </div>
+    </section>
+    <section id="faq" class="section">
+      <h2>FAQ</h2>
+      <div class="accordion">
+        <div class="item"><button class="q">Brauche ich Docker für Open WebUI?<span>+</span></button><div class="a">Nein. Open WebUI kann direkt per Python und pip installiert werden; die offizielle Doku beschreibt neben Container-Varianten auch lokale Startpfade. [web:19][web:23]</div></div>
+        <div class="item"><button class="q">Welches Modell passt auf ein kleines Chromebook?<span>+</span></button><div class="a">Für kleine Geräte sind 2B- bis 3B-Modelle wie gemma3:2b oder qwen2.5:3b deutlich realistischer als 7B-Modelle, weil RAM-Bedarf und CPU-Last niedriger bleiben. [web:7][web:10]</div></div>
+        <div class="item"><button class="q">Wie richte ich den Tunnel im Web ein?<span>+</span></button><div class="a">Im Cloudflare-Dashboard wird unter Tunnels ein neuer Tunnel angelegt; danach werden Public Hostnames definiert, die lokale Dienste wie localhost:11434 oder localhost:8080 auf Subdomains routen. [web:9]</div></div>
+      </div>
+    </section>
+    <footer class="footer">
+      <div>© <span id="year"></span> LocalLLMChromebook</div>
+      <a class="bmac" href="https://www.buymeacoffee.com/highfish" target="_blank" rel="noopener noreferrer"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy me a coffee" width="170" height="40" loading="lazy"></a>
+    </footer>
+  </main>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.querySelectorAll('.q').forEach(btn => btn.addEventListener('click', () => {
+      const a = btn.nextElementSibling; const open = a.style.display === 'block';
+      document.querySelectorAll('.a').forEach(x => x.style.display = 'none');
+      document.querySelectorAll('.q span').forEach(x => x.textContent = '+');
+      if (!open) { a.style.display = 'block'; btn.querySelector('span').textContent = '–'; }
+    }));
+    document.getElementById('copyInstall').addEventListener('click', async () => {
+      const text = 'curl -fsSL https://raw.githubusercontent.com/jbkunama1/LocalLLMChromebook/main/setup.sh -o setup.sh && chmod +x setup.sh && ./setup.sh';
+      await navigator.clipboard.writeText(text); alert('Einzeiler kopiert.');
+    });
+    (function(){const t=document.querySelector('[data-theme-toggle]'),r=document.documentElement;let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';r.setAttribute('data-theme',d);t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);});})();
+  </script>
+</body>
+</html>
